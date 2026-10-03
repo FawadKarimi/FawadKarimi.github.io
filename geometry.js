@@ -10,12 +10,20 @@ function project(p){var yaw=state.yaw+state.mouseX*.055,pitch=state.pitch+state.
 function line(points,color,width,close){ctx.beginPath();points.forEach(function(p,i){var q=project(p);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y)});if(close)ctx.closePath();ctx.strokeStyle=color;ctx.lineWidth=width||.8;ctx.stroke()}
 function rgba(rgb,a){return'rgba('+rgb+','+a+')'}
 function draw(){var W=state.width,H=state.height;ctx.clearRect(0,0,W,H);var rgb=state.dark?'85,204,220':'18,114,139',soft=state.dark?'110,161,206':'69,140,158';
-// Broad CT-like planes span the full landing environment, surrounding the copy.
-for(var z=-140;z<=140;z+=70){line([{x:-395,y:-228,z:z},{x:395,y:-228,z:z},{x:395,y:228,z:z},{x:-395,y:228,z:z}],rgba(soft,state.dark?.085:.095),.7,true)}
-for(var x=-395;x<=395;x+=79){line([{x:x,y:228,z:-140},{x:x,y:228,z:140}],rgba(soft,.10),.6)}
-// A quiet path from representation to candidate, without implying model results.
-var nodes=[{x:-335,y:125,z:95},{x:-255,y:184,z:75},{x:-128,y:216,z:40},{x:35,y:220,z:5},{x:220,y:181,z:25},{x:325,y:92,z:100}];line(nodes,rgba(rgb,.22),1);nodes.forEach(function(n){var q=project(n);ctx.beginPath();ctx.arc(q.x,q.y,3*q.f,0,Math.PI*2);ctx.fillStyle=rgba(rgb,.48);ctx.fill()});
-var spot=project({x:193,y:-92,z:35}),accent=state.dark?'196,240,165':'29,134,132';ctx.beginPath();ctx.arc(spot.x,spot.y,4.4*spot.f,0,Math.PI*2);ctx.fillStyle=rgba(accent,.88);ctx.fill();ctx.beginPath();ctx.arc(spot.x,spot.y,14*spot.f,0,Math.PI*2);ctx.strokeStyle=rgba(accent,.35);ctx.lineWidth=1;ctx.stroke();
+// Conceptual imaging -> neural processing -> health support. No model predictions or patient data.
+var z=95;
+// Layered medical-image frames on the left.
+for(var k=0;k<3;k++){var dx=k*13,dy=k*-10;line([{x:-375+dx,y:-150+dy,z:z},{x:-285+dx,y:-150+dy,z:z},{x:-285+dx,y:-65+dy,z:z},{x:-375+dx,y:-65+dy,z:z}],rgba(soft,.25),1,true)}
+// A small multi-layer neural graph, with gently travelling signals.
+var layers=[[-370,[-25,30,85]],[-315,[-50,5,60,115]],[-260,[-25,30,85]]];
+for(var a=0;a<layers.length-1;a++){layers[a][1].forEach(function(y,i){layers[a+1][1].forEach(function(yy,j){var u={x:layers[a][0],y:y,z:z},v={x:layers[a+1][0],y:yy,z:z};line([u,v],rgba(rgb,.12),.7);if((i+j)%3===0){var t=(time*.035+(i+j)*.21)%1,q=project({x:u.x+(v.x-u.x)*t,y:y+(yy-y)*t,z:z});ctx.beginPath();ctx.arc(q.x,q.y,1.8,0,Math.PI*2);ctx.fillStyle=rgba(rgb,.50);ctx.fill()}})})}
+layers.forEach(function(l){l[1].forEach(function(y){var q=project({x:l[0],y:y,z:z});ctx.beginPath();ctx.arc(q.x,q.y,3,0,Math.PI*2);ctx.strokeStyle=rgba(rgb,.45);ctx.lineWidth=1;ctx.stroke()})});
+// Heart and medical cross, expressing the goal of health-supporting AI.
+var heart=[];for(var a=0;a<=Math.PI*2+.05;a+=.08){heart.push({x:305+Math.pow(Math.sin(a),3)*4.1*16,y:-45-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*4.1,z:z})}line(heart,rgba(rgb,.28),1.15,true);
+var cx=305,cy=88,r=25,w=8;line([{x:cx-w,y:cy-r,z:z},{x:cx+w,y:cy-r,z:z},{x:cx+w,y:cy-w,z:z},{x:cx+r,y:cy-w,z:z},{x:cx+r,y:cy+w,z:z},{x:cx+w,y:cy+w,z:z},{x:cx+w,y:cy+r,z:z},{x:cx-w,y:cy+r,z:z},{x:cx-w,y:cy+w,z:z},{x:cx-r,y:cy+w,z:z},{x:cx-r,y:cy-w,z:z},{x:cx-w,y:cy-w,z:z}],rgba(rgb,.3),1.1,true);
+// Curved lower connection stays outside the dominant lung silhouette.
+var route=[{x:-260,y:130,z:z},{x:-195,y:205,z:z},{x:-60,y:244,z:z},{x:70,y:244,z:z},{x:205,y:205,z:z},{x:305,y:145,z:z}];line(route,rgba(rgb,.17),1);
+
 }
 function resize(){var r=canvas.parentElement.getBoundingClientRect();state.width=r.width;state.height=r.height;var ratio=Math.min(window.devicePixelRatio||1,1.75);canvas.width=Math.round(r.width*ratio);canvas.height=Math.round(r.height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);draw()}
 function animate(t){frame=requestAnimationFrame(animate);if(t-last<40)return;var dt=Math.min((t-last)/1000,.06);last=t;if(state.reduced||!state.visible||document.hidden)return;time+=dt*16;state.yaw=-.28+Math.sin(time*.12)*.13;state.pitch=.06+Math.sin(time*.10)*.035;state.mouseX+=(state.targetX-state.mouseX)*.045;state.mouseY+=(state.targetY-state.mouseY)*.045;draw()}

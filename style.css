@@ -30,3 +30,6 @@ html{color-scheme:light}html[data-theme="dark"]{color-scheme:dark;--ink:#e6edf8;
 .profile-banner{grid-template-columns:130px minmax(0,1fr)}.profile-banner .profile-portrait{width:130px;height:130px}.profile-banner .profile-portrait img{transform:none;object-position:center}@media(max-width:600px){.profile-banner{grid-template-columns:88px minmax(0,1fr)}.profile-banner .profile-portrait{width:88px;height:88px}}
 
 .immersive-scene #ambient-geometry{position:absolute;inset:0;opacity:.8;pointer-events:none}.scene-atmosphere{pointer-events:none}@media(max-width:700px){.immersive-scene #ambient-geometry{opacity:.6}}
+
+/* Decorative AI-for-health graphics remain behind the anatomical canvas. */
+.immersive-scene #ambient-geometry{z-index:0;mask-image:radial-gradient(ellipse 24% 49% at 50% 47%,transparent 65%,#000 100%);-webkit-mask-image:radial-gradient(ellipse 24% 49% at 50% 47%,transparent 65%,#000 100%)}.immersive-scene #ambient-volume{position:absolute;inset:0;z-index:1}.immersive-scene .scene-atmosphere{z-index:2}
