@@ -33,3 +33,5 @@ html{color-scheme:light}html[data-theme="dark"]{color-scheme:dark;--ink:#e6edf8;
 
 /* Decorative AI-for-health graphics remain behind the anatomical canvas. */
 .immersive-scene #ambient-geometry{z-index:0;mask-image:radial-gradient(ellipse 24% 49% at 50% 47%,transparent 65%,#000 100%);-webkit-mask-image:radial-gradient(ellipse 24% 49% at 50% 47%,transparent 65%,#000 100%)}.immersive-scene #ambient-volume{position:absolute;inset:0;z-index:1}.immersive-scene .scene-atmosphere{z-index:2}
+
+@media(max-width:700px),(max-height:519px){.immersive-scene #ambient-geometry{opacity:.95;mask-image:radial-gradient(ellipse 19% 44% at 50% 47%,transparent 62%,#000 100%);-webkit-mask-image:radial-gradient(ellipse 19% 44% at 50% 47%,transparent 62%,#000 100%)}}
