@@ -11,7 +11,7 @@ try {
   if(!context) throw new Error('WebGL unavailable');
   renderer = new THREE.WebGLRenderer({canvas, context, alpha:true, antialias:!mobile, powerPreference:'low-power'});
 } catch (_) {
-  import('./anatomy-software.js?v=2').catch(()=>{});
+  import('./anatomy-software.js?v=3').catch(()=>{});
 }
 if (renderer) start();
 
@@ -45,11 +45,11 @@ async function start(){
     hemisphere.intensity=dark?1.7:2.1;key.intensity=dark?2.6:2.1;rim.intensity=dark?2.7:1.5;
     render();
   }
-  function smooth(t){t=Math.max(0,Math.min(1,t));return t*t*t*(t*(t*6-15)+10)}
+  function smooth(t){t=Math.max(0,Math.min(1,t));return 1-(1-t)*(1-t)}
   function render(){
     if(!renderer)return;
-    const progress=reduced?1:smooth((elapsed-1.5)/8.5);
-    const breathing=reduced?1:1+Math.sin(Math.max(0,elapsed-10)*1.28)*.010;
+    const progress=reduced?1:smooth(elapsed/8.5);
+    const breathing=reduced?1:1+Math.sin(Math.max(0,elapsed-8.5)*1.28)*.010;
     if(ready){
       // Both meshes share the source atlas's coordinates. Keep that alignment intact.
       const fade=1-progress;
@@ -90,7 +90,7 @@ async function start(){
     root.classList.add('anatomy-loaded');applyTheme();
   }catch(error){
     renderer.dispose();canvas.style.opacity='0';root.classList.add('anatomy-unavailable');
-    import('./anatomy-software.js?v=2').catch(()=>{});
+    import('./anatomy-software.js?v=3').catch(()=>{});
     return;
   }
   requestAnimationFrame(loop);

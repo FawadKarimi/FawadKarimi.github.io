@@ -8,15 +8,15 @@ let reduced=media.matches,dark=root.dataset.theme==='dark',meshes=[],ready=false
 function norm(v){const n=Math.hypot(...v);return v.map(x=>x/n)}
 function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
-function smooth(t){t=Math.max(0,Math.min(1,t));return t*t*t*(t*(t*6-15)+10)}
+function smooth(t){t=Math.max(0,Math.min(1,t));return 1-(1-t)*(1-t)}
 function draw(){
  if(!ready||!ctx)return;ctx.clearRect(0,0,W,H);
- const p=reduced?1:smooth((elapsed-1.5)/8.5),mobile=W<701;
+ const p=reduced?1:smooth(elapsed/8.5),mobile=W<701;
  const eye=[.23+(.095-.23)*p,.56+(.545-.56)*p,(mobile?2.30:1.78)+((mobile?.91:.78)-(mobile?2.30:1.78))*p];
  const target=[0,.565+(.535-.565)*p,.008],fwd=norm(target.map((v,i)=>v-eye[i])),right=norm(cross(fwd,[0,1,0])),up=cross(right,fwd);
  const focal=H/(2*Math.tan(34*Math.PI/360));
  const yaw=.1+(reduced?0:Math.sin(elapsed*1.92)*.024),c=Math.cos(yaw),s=Math.sin(yaw);
- const breath=reduced?1:1+Math.sin(Math.max(0,elapsed-10)*1.28)*.01;
+ const breath=reduced?1:1+Math.sin(Math.max(0,elapsed-8.5)*1.28)*.01;
  const faces=[],light=norm([-.35,.55,1]);
  for(const m of meshes){
   if(m.kind==='body'&&p>.985)continue;
