@@ -12,6 +12,6 @@ Original models:
 https://github.com/hubmapconsortium/ccf-releases/blob/main/v1.2/models/VH_M_Lung.glb
 https://github.com/hubmapconsortium/ccf-releases/blob/main/v1.2/models/VH_M_Skin.glb
 
-Adaptations: neutral upper-body presentation, clipping below the torso, recolored materials, simplified lighting, camera animation, and illustrative breathing motion. Original mesh files are unchanged. These are reference anatomical models derived from the public Visible Human reference collection, not a visitor's patient scan or an output of the portfolio author's research models. The animation is an illustrative presentation, not a physiological simulation.
+Adaptations: neutral upper-body presentation, clipping below the torso, recolored materials, simplified lighting, camera animation, and illustrative breathing motion. Original GLB mesh files are unchanged. The software-rendered fallback uses simplified, vertex-clustered derivatives of these meshes. These are reference anatomical models derived from the public Visible Human reference collection, not a visitor's patient scan or an output of the portfolio author's research models. The animation is an illustrative presentation, not a physiological simulation.
 
 Three.js is distributed under the MIT license; see THREE-LICENSE.txt.

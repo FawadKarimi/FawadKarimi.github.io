@@ -9,7 +9,7 @@ let renderer;
 try {
   renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:!mobile, powerPreference:'low-power'});
 } catch (_) {
-  import('./volume.js?v=motion16-20261003').catch(()=>{});
+  import('./anatomy-software.js?v=1').catch(()=>{});
 }
 if (renderer) start();
 
@@ -88,7 +88,7 @@ async function start(){
     root.classList.add('anatomy-loaded');applyTheme();
   }catch(error){
     renderer.dispose();canvas.style.opacity='0';root.classList.add('anatomy-unavailable');
-    console.warn('Anatomy illustration unavailable; portfolio content remains available.');
+    import('./anatomy-software.js?v=1').catch(()=>{});
     return;
   }
   requestAnimationFrame(loop);
