@@ -1,0 +1,17 @@
+Anatomy reference models
+
+Creator: Kristen Browne
+Collection: HuBMAP CCF 3D Reference Object Library, v1.2 (2022)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Collection and provenance:
+https://hubmapconsortium.github.io/ccf/pages/ccf-3d-reference-library.html
+
+Original models:
+https://github.com/hubmapconsortium/ccf-releases/blob/main/v1.2/models/VH_M_Lung.glb
+https://github.com/hubmapconsortium/ccf-releases/blob/main/v1.2/models/VH_M_Skin.glb
+
+Adaptations: neutral upper-body presentation, clipping below the torso, recolored materials, simplified lighting, camera animation, and illustrative breathing motion. Original mesh files are unchanged. These are reference anatomical models derived from the public Visible Human reference collection, not a visitor's patient scan or an output of the portfolio author's research models. The animation is an illustrative presentation, not a physiological simulation.
+
+Three.js is distributed under the MIT license; see THREE-LICENSE.txt.

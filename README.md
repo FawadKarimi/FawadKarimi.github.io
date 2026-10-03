@@ -11,7 +11,8 @@ This repository serves the portfolio through GitHub Pages. It contains only publ
 - `index.html`: portfolio content
 - `style.css`: responsive light and dark presentation
 - `theme.js`: visitor theme preference
-- `volume.js`: synthetic conceptual 3D background
+- `anatomy.js`: body-to-lung anatomical presentation
+- `volume.js`: lightweight fallback background
 - `.nojekyll`: serve the static files directly
 
-The background is a synthetic visualization, not a patient scan or model output. Reduced-motion preferences are respected. External fonts are loaded from Google Fonts. Upstream projects mentioned in the portfolio retain their original authorship and licensing.
+The background uses CC BY 4.0 anatomical reference meshes by Kristen Browne / HuBMAP, with a body-to-lung camera sequence and illustrative breathing. See ANATOMY-ATTRIBUTION.txt. It is not a patient scan or model output. Reduced-motion preferences are respected. External fonts are loaded from Google Fonts. Upstream projects mentioned in the portfolio retain their original authorship and licensing.
