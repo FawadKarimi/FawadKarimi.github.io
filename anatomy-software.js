@@ -29,6 +29,6 @@ function draw(){
  for(const f of faces){ctx.fillStyle=f.color;ctx.beginPath();ctx.moveTo(f.a[0],f.a[1]);ctx.lineTo(f.b[0],f.b[1]);ctx.lineTo(f.c[0],f.c[1]);ctx.closePath();ctx.fill();}
 }
 function resize(){const r=canvas.parentElement.getBoundingClientRect();W=r.width;H=r.height;const d=Math.min(devicePixelRatio||1,1.25);canvas.width=W*d;canvas.height=H*d;ctx.setTransform(d,0,0,d,0,0);draw()}
-function loop(t){requestAnimationFrame(loop);if(t-last<80)return;let dt=Math.min((t-last)/1000,.12);last=t;if(!visible||document.hidden)return;if(!reduced)elapsed+=dt;draw()}
+function loop(t){requestAnimationFrame(loop);if(t-last<80)return;let dt=Math.min((t-last)/1000,.12);last=t;if(!visible||document.hidden||reduced)return;elapsed+=dt;draw()}
 new ResizeObserver(resize).observe(canvas.parentElement);new IntersectionObserver(es=>{visible=es[0].isIntersecting}).observe(canvas);new MutationObserver(()=>{dark=root.dataset.theme==='dark';draw()}).observe(root,{attributes:true,attributeFilter:['data-theme']});media.addEventListener('change',e=>{reduced=e.matches;if(reduced)elapsed=10;draw()});
 try{const response=await fetch('./anatomy-lod.json');if(!response.ok)throw Error('Anatomy unavailable');const data=await response.json();meshes=data.meshes;ready=true;elapsed=reduced?10:0;root.classList.add('anatomy-loaded','anatomy-software');resize();requestAnimationFrame(loop)}catch(_){canvas.style.opacity='0'}

@@ -7,9 +7,11 @@ const preference = matchMedia('(prefers-reduced-motion: reduce)');
 const mobile = matchMedia('(max-width: 700px)').matches;
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:!mobile, powerPreference:'low-power'});
+  const context=canvas.getContext('webgl2',{alpha:true,antialias:!mobile,powerPreference:'low-power'});
+  if(!context) throw new Error('WebGL unavailable');
+  renderer = new THREE.WebGLRenderer({canvas, context, alpha:true, antialias:!mobile, powerPreference:'low-power'});
 } catch (_) {
-  import('./anatomy-software.js?v=1').catch(()=>{});
+  import('./anatomy-software.js?v=2').catch(()=>{});
 }
 if (renderer) start();
 
@@ -64,7 +66,7 @@ async function start(){
     }else{camera.position.set(.1,.56,1.7);camera.lookAt(0,.56,0)}
     renderer.render(scene,camera);
   }
-  function loop(now){requestAnimationFrame(loop);if(now-last<33)return;const dt=Math.min((now-last)/1000,.07);last=now;if(!visible||document.hidden)return;if(ready&&!reduced)elapsed+=dt;render()}
+  function loop(now){requestAnimationFrame(loop);if(now-last<33)return;const dt=Math.min((now-last)/1000,.07);last=now;if(!visible||document.hidden||reduced)return;if(ready)elapsed+=dt;render()}
   window.addEventListener('resize',resize);
   new ResizeObserver(resize).observe(canvas.parentElement);
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting}).observe(canvas);
@@ -88,7 +90,7 @@ async function start(){
     root.classList.add('anatomy-loaded');applyTheme();
   }catch(error){
     renderer.dispose();canvas.style.opacity='0';root.classList.add('anatomy-unavailable');
-    import('./anatomy-software.js?v=1').catch(()=>{});
+    import('./anatomy-software.js?v=2').catch(()=>{});
     return;
   }
   requestAnimationFrame(loop);
