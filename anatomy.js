@@ -11,7 +11,7 @@ try {
   if(!context) throw new Error('WebGL unavailable');
   renderer = new THREE.WebGLRenderer({canvas, context, alpha:true, antialias:!mobile, powerPreference:'low-power'});
 } catch (_) {
-  import('./anatomy-software.js?v=3').catch(()=>{});
+  import('./anatomy-software.js?v=nodule-focus1').catch(()=>{});
 }
 if (renderer) start();
 
@@ -45,6 +45,14 @@ async function start(){
     hemisphere.intensity=dark?1.7:2.1;key.intensity=dark?2.6:2.1;rim.intensity=dark?2.7:1.5;
     render();
   }
+  // Synthetic illustrative targets; not detections or cancer diagnoses.
+  const nodules=[[-.079,.575,.061],[.087,.451,.066]].map(position=>{
+    const group=new THREE.Group();group.position.set(...position);
+    const core=new THREE.Mesh(new THREE.SphereGeometry(.0055,12,8),new THREE.MeshBasicMaterial({color:0xffc16b,transparent:true,depthTest:false}));
+    core.renderOrder=10;group.add(core);
+    const halo=new THREE.Mesh(new THREE.RingGeometry(.010,.0115,40),new THREE.MeshBasicMaterial({color:0xffc16b,transparent:true,opacity:.7,side:THREE.DoubleSide,depthTest:false,depthWrite:false}));
+    halo.renderOrder=11;group.add(halo);return {group,core,halo};
+  });
   function smooth(t){t=Math.max(0,Math.min(1,t));return 1-(1-t)*(1-t)}
   function render(){
     if(!renderer)return;
@@ -57,12 +65,21 @@ async function start(){
       if(body)body.visible=progress<.99;
       respiratory.scale.set(1+(breathing-1)*.75,breathing,1+(breathing-1)*.75);
       respiratory.position.y=lungCenter.y*(1-breathing);
-      const ambient=reduced?0:Math.sin(elapsed*1.92)*.024;
+      const focusTime=Math.max(0,elapsed-10);
+      const ambient=reduced?0:Math.sin(focusTime*.32)*.14;
       anatomicalGroup.rotation.y=.10+ambient;
-      const distance=THREE.MathUtils.lerp(mobile?2.30:1.78,mobile?.91:.78,progress);
+      const approach=reduced?1:smooth(focusTime/2);
+      const distance=THREE.MathUtils.lerp(mobile?.97:.84,mobile?.88:.72,approach);
       camera.position.set(THREE.MathUtils.lerp(.23,.095,progress),THREE.MathUtils.lerp(.56,.545,progress),distance);
-      target.set(0,THREE.MathUtils.lerp(.565,.535,progress),.008);
+      target.set(reduced?0:Math.sin(focusTime*.32)*.008,.525,.008);
       camera.lookAt(target);
+      nodules.forEach(({core,halo},i)=>{
+        const pulse=reduced?.65:(Math.sin(focusTime*.35+i*Math.PI)+1)/2;
+        core.material.opacity=.65+.35*pulse;
+        halo.scale.setScalar(1+.6*pulse);halo.material.opacity=.25+.55*(1-pulse);
+        const parentQ=new THREE.Quaternion();respiratory.getWorldQuaternion(parentQ);
+        halo.quaternion.copy(parentQ.invert().multiply(camera.quaternion));
+      });
     }else{camera.position.set(.1,.56,1.7);camera.lookAt(0,.56,0)}
     renderer.render(scene,camera);
   }
@@ -89,11 +106,12 @@ async function start(){
       const obj=new THREE.Mesh(geometry,material);obj.renderOrder=isLung?2:1;
       (isLung?lungMaterials:airwayMaterials).push(material);respiratory.add(obj);
     });
+    nodules.forEach(n=>respiratory.add(n.group));
     anatomicalGroup.add(respiratory);ready=true;elapsed=10;
     root.classList.add('anatomy-loaded');applyTheme();
   }catch(error){
     renderer.dispose();canvas.style.opacity='0';root.classList.add('anatomy-unavailable');
-    import('./anatomy-software.js?v=3').catch(()=>{});
+    import('./anatomy-software.js?v=nodule-focus1').catch(()=>{});
     return;
   }
   requestAnimationFrame(loop);
