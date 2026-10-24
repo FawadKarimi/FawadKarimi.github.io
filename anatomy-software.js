@@ -27,6 +27,17 @@ function draw(){
  }
  faces.sort((a,b)=>b.z-a.z);
  for(const f of faces){ctx.fillStyle=f.color;ctx.beginPath();ctx.moveTo(f.a[0],f.a[1]);ctx.lineTo(f.b[0],f.b[1]);ctx.lineTo(f.c[0],f.c[1]);ctx.closePath();ctx.fill();}
+ // Illustrative markers, following the breathing transform. No diagnostic claim.
+ [[-.079,.575,.061],[.087,.451,.066]].forEach((src,i)=>{
+  const x=src[0]*(1+(breath-1)*.75),y=.532+(src[1]-.532)*breath,z=src[2]*(1+(breath-1)*.75);
+  const q=[x*c+z*s,y,-x*s+z*c],rel=q.map((v,j)=>v-eye[j]),d=dot(rel,fwd);
+  if(d<=0)return;const px=W/2+dot(rel,right)*focal/d,py=H/2-dot(rel,up)*focal/d;
+  const pulse=reduced?.65:(Math.sin(Math.max(0,elapsed-10)*.35+i*Math.PI)+1)/2,r=.0055*focal/d;
+  ctx.fillStyle='#ffc16b';ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=`rgba(255,193,107,${.25+.55*(1-pulse)})`;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(px,py,r*2.1*(1+.6*pulse),0,Math.PI*2);ctx.stroke();
+ });
+
 }
 function resize(){const r=canvas.parentElement.getBoundingClientRect();W=r.width;H=r.height;const d=Math.min(devicePixelRatio||1,1.25);canvas.width=W*d;canvas.height=H*d;ctx.setTransform(d,0,0,d,0,0);draw()}
 function loop(t){requestAnimationFrame(loop);if(t-last<80)return;let dt=Math.min((t-last)/1000,.12);last=t;if(!visible||document.hidden||reduced)return;elapsed+=dt;draw()}
