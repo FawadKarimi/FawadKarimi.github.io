@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from './GLTFLoader.js';
+
 
 const canvas = document.getElementById('ambient-volume');
 const root = document.documentElement;
@@ -30,7 +30,7 @@ async function start(){
   const rim=new THREE.DirectionalLight(0x79d7e5,3);rim.position.set(1,.8,-1);scene.add(rim);
   const fill=new THREE.DirectionalLight(0xb5e7ff,.8);fill.position.set(1,-.2,1);scene.add(fill);
   const clip=new THREE.Plane(new THREE.Vector3(0,1,0),-.18);
-  const loader=new GLTFLoader();
+
   let body,respiratory,bodyMaterials=[],lungMaterials=[],airwayMaterials=[],ready=false;
   let elapsed=0,last=0,visible=true,reduced=preference.matches;
   let dark=root.dataset.theme==='dark';
@@ -54,7 +54,7 @@ async function start(){
       // Both meshes share the source atlas's coordinates. Keep that alignment intact.
       const fade=1-progress;
       bodyMaterials.forEach(m=>m.opacity=(dark?.24:.2)*fade);
-      body.visible=progress<.99;
+      if(body)body.visible=progress<.99;
       respiratory.scale.set(1+(breathing-1)*.75,breathing,1+(breathing-1)*.75);
       respiratory.position.y=lungCenter.y*(1-breathing);
       const ambient=reduced?0:Math.sin(elapsed*1.92)*.024;
@@ -72,21 +72,24 @@ async function start(){
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting}).observe(canvas);
   new MutationObserver(applyTheme).observe(root,{attributes:true,attributeFilter:['data-theme']});
   preference.addEventListener('change',e=>{reduced=e.matches;if(reduced)elapsed=10;render()});
-  canvas.addEventListener('webglcontextlost',()=>{canvas.style.opacity='0'},{once:true});
+  canvas.addEventListener('webglcontextlost',()=>{canvas.style.opacity='0';root.classList.remove('anatomy-loaded')},{once:true});
   resize();
   try{
-    const models=await Promise.all([loader.loadAsync('./body-reference.glb'),loader.loadAsync('./lungs-reference.glb')]);
-    body=models[0].scene;respiratory=models[1].scene;
-    body.traverse(obj=>{if(!obj.isMesh)return;obj.material=new THREE.MeshPhongMaterial({color:0x91cad2,transparent:true,opacity:.24,shininess:65,side:THREE.FrontSide,depthWrite:false,clippingPlanes:[clip]});bodyMaterials.push(obj.material);obj.renderOrder=3;});
-    respiratory.traverse(obj=>{
-      if(!obj.isMesh)return;
-      const original=(Array.isArray(obj.material)?obj.material[0]:obj.material).name||'';
-      const isLung=original.toLowerCase().includes('lung');
-      obj.material=new THREE.MeshStandardMaterial({color:isLung?0xc78c87:0xe4d3ba,roughness:isLung?.61:.42,metalness:0,transparent:isLung,opacity:isLung?.85:1,depthWrite:!isLung,side:THREE.FrontSide});
-      obj.renderOrder=isLung?2:1;
-      (isLung?lungMaterials:airwayMaterials).push(obj.material);
+    // Reuse the attributed, simplified reference geometry; skip the full-body download.
+    const response=await fetch('./lungs-fast.json');
+    if(!response.ok)throw new Error('Anatomy unavailable');
+    const data=await response.json();
+    respiratory=new THREE.Group();
+    data.meshes.forEach(mesh=>{
+      const geometry=new THREE.BufferGeometry();
+      geometry.setAttribute('position',new THREE.Float32BufferAttribute(mesh.vertices,3));
+      geometry.setIndex(mesh.indices);geometry.computeVertexNormals();
+      const isLung=mesh.kind==='lung';
+      const material=new THREE.MeshStandardMaterial({color:isLung?0xc78c87:0xe4d3ba,roughness:isLung?.61:.42,metalness:0,transparent:isLung,opacity:isLung?.85:1,depthWrite:!isLung,side:THREE.FrontSide});
+      const obj=new THREE.Mesh(geometry,material);obj.renderOrder=isLung?2:1;
+      (isLung?lungMaterials:airwayMaterials).push(material);respiratory.add(obj);
     });
-    anatomicalGroup.add(body,respiratory);ready=true;elapsed=reduced?10:0;
+    anatomicalGroup.add(respiratory);ready=true;elapsed=10;
     root.classList.add('anatomy-loaded');applyTheme();
   }catch(error){
     renderer.dispose();canvas.style.opacity='0';root.classList.add('anatomy-unavailable');
